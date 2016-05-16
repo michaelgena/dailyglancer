@@ -11,6 +11,8 @@ import Browse from './components/app/Browse';
 import GlancerList from './components/app/GlancerList';
 import Api from './components/app/RssFeedApi';
 
+import GlancerContent from './components/app/GlancerContent';
+
 const DRAWER_IMAGE = require('./img/drawer_menu.png');
 const BACK_BUTTON_IMAGE = require('./img/back.png');
 
@@ -28,16 +30,15 @@ function reducerCreate(params) {
       }
     }*/
     // workaround...
-    action.drawerImage = DRAWER_IMAGE;
-    action.backButtonImage = BACK_BUTTON_IMAGE;
+    //action.drawerImage = DRAWER_IMAGE
+    //action.backButtonImage = BACK_BUTTON_IMAGE;
     return defaultReducer(state, action);
   }
 };
 
 class Root extends Component {
   render() {
-    return <Router createReducer={reducerCreate} navigationBarStyle={styles.navbar} titleStyle={styles.title}
-      drawerImage={DRAWER_IMAGE} backButtonImage={BACK_BUTTON_IMAGE}>
+    return <Router createReducer={reducerCreate} navigationBarStyle={styles.navbar} titleStyle={styles.title}>
       <Scene key="root" hideNavBar={true}>
         <Scene key="splash" component={Splash} initial={true} title="Splash" />
         <Scene key="login" component={Login} type="replace" title="Login" />
@@ -45,6 +46,7 @@ class Root extends Component {
           <Scene key="main">
             <Scene key="browse" component={Browse} initial={true} title='My Glances' type="replace" />
             <Scene key="glancerList" component={GlancerList} title='Glancer' />
+            <Scene key="glancerContent" component={GlancerContent} title='Glancer Content' />
           </Scene>
         </Scene>
       </Scene>
@@ -54,10 +56,10 @@ class Root extends Component {
 
 const styles = StyleSheet.create({
   title: {
-    color: '#213f7d',
+    color: '#000000',
   },
   navbar: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDF058',
     borderBottomColor: 'transparent',
   }
 });

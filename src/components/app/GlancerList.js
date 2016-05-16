@@ -21,13 +21,14 @@ var styles = StyleSheet.create({
         height: 350
     },
     rightContainer: {
-        flex: 1
+        flex: 1,
+				backgroundColor: '#FFFFFF',
     },
     title: {
         fontSize: 20,
         marginLeft: 5,
         marginRight: 5,
-        marginBottom: 8
+        marginBottom: 0
     },
     content: {
         color: '#656565',
@@ -117,17 +118,41 @@ class GlancerList extends Component {
         );
 			}
 
+			var re = /.*src="([^"]*)/;
+			var m;
+			var src="";
+			if ((m = re.exec(glance.content)) !== null) {
+			    if (m.index === re.lastIndex) {
+			        re.lastIndex++;
+			    }
+					src = m[1];
+			}
+
+			if(src != ""){
        return (
-            <TouchableHighlight underlayColor='#dddddd'>
+            <TouchableHighlight onPress={()=>{Actions.glancerContent({url: glance.link, title: glance.title})}} underlayColor='#dddddd'>
                 <View>
                      <View style={styles.rightContainer}>
+										 		<Image style={styles.image}source={{uri: src}} resizeMode='contain' />
                         <Text style={styles.title}>{glance.title}</Text>
-                        <Text style={styles.content}>{glance.contentSnippet}</Text>
                     </View>
                     <View style={styles.separator} />
                 </View>
             </TouchableHighlight>
        );
+		 }else{
+			 return (
+						<TouchableHighlight onPress={()=>{Actions.glancerContent({url: glance.link, title: glance.title})}} underlayColor='#dddddd'>
+								<View>
+										 <View style={styles.rightContainer}>
+												<Text style={styles.title}>{glance.title}</Text>
+												<Text style={styles.content}>{glance.contentSnippet}</Text>
+										</View>
+										<View style={styles.separator} />
+								</View>
+						</TouchableHighlight>
+			 );
+		 }
 
    }
 
@@ -165,7 +190,7 @@ class GlancerList extends Component {
 			.then((responseData) => {
 				if(responseData.responseData !== null && responseData.responseData.feed.entries !== undefined){
 					entries = responseData.responseData.feed.entries;
-					console.log("feeds");
+					console.log("feeds: " + entries);
 					this._entries.concat(entries);
 					this.setState({
 							dataSource: this.state.dataSource.cloneWithRows(entries),
