@@ -14,11 +14,11 @@ export default class extends Component {
         type="displace"
         content={<DrawerContent />}
         tapToClose={true}
-        openDrawerOffset={0.2}
-        panCloseMask={0.2}
+        openDrawerOffset={0.3}
+        panCloseMask={0.4}
         negotiatePan={true}
         tweenHandler={(ratio) => ({
-          main: { opacity:Math.max(0.54, 1 - ratio) }
+          main: { opacity:Math.max(0.9, 1 - ratio) }
         })}>
         <DefaultRenderer navigationState={children[0]} />
       </Drawer>

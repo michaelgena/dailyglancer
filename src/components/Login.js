@@ -23,14 +23,14 @@ class Login extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <TextInput style={{height: 40, borderColor: 'gray', borderWidth: 1}}
+        <TextInput style={styles.input}
           placeholder="Username"
           autoCapitalize="none"
           autoCorrect={false}
           onChangeText={ (username) => this.setState({ username }) }
           value={this.state.username}
         />
-        <TextInput style={{height: 40, borderColor: 'gray', borderWidth: 1}}
+        <TextInput style={styles.input}
           placeholder="Password"
           secureTextEntry={true}
           autoCapitalize="none"
@@ -39,7 +39,7 @@ class Login extends Component {
           value={this.state.password}
         />
         <Button
-          style={{fontSize: 20}}
+          style={styles.button}
           styleDisabled={{color: 'red'}}
           onPress={() => this._connect()}>
           Connect
@@ -56,6 +56,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FDF058',
+  },
+  input:{
+    height: 40,
+    fontSize: 20,
+    fontWeight: 'bold',
+    backgroundColor: '#FFFFFF',
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 5
+  },
+  button:{
+    height: 40,
+    fontSize: 20,
   }
 })
 

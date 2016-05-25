@@ -54,8 +54,8 @@ class DrawerContent extends React.Component {
   renderGlanceMaker(glanceMaker) {
   		const drawer = this.context.drawer;
        return (
-            <TouchableHighlight onPress={()=>{drawer.close(); Actions.glancerList({glanceMaker, title: glanceMaker.PgeTitle})}}  underlayColor='#dddddd'>
-                <View>
+            <TouchableHighlight onPress={()=>{drawer.close(); Actions.glancerList({glanceMaker, title: glanceMaker.PgeTitle})}}  underlayColor='#05ABF1'>
+                <View style={styles.glancerItem}>
                 	<Text style={styles.item}>{glanceMaker.PgeTitle}</Text>
                 </View>
             </TouchableHighlight>
@@ -80,15 +80,15 @@ class DrawerContent extends React.Component {
         </ScrollView>
         <View style={styles.menuItem}>
           <Image style={styles.itemImage} source={require('../../img/search.png')} />
-          <Button style={styles.itemLabel} onPress={() => { drawer.close();}}>Search</Button>
+          <Button style={styles.itemLabel} onPress={() => { drawer.close();}}><Text style={styles.text}>Search</Text></Button>
         </View>
         <View style={styles.menuItem}>
           <Image style={styles.itemImage} source={require('../../img/settings.png')} />
-          <Button style={styles.itemLabel} onPress={() => { drawer.close();}}>Settings</Button>
+          <Button style={styles.itemLabel} onPress={() => { drawer.close();}}><Text style={styles.text}>Settings</Text></Button>
         </View>
         <View style={styles.menuItem}>
           <Image style={styles.itemImage} source={require('../../img/signout.png')} />
-          <Button style={styles.itemLabel} onPress={() => this._signOut()}>Sign out</Button>
+          <Button style={styles.itemLabel} onPress={() => this._signOut()}><Text style={styles.text}>Sign out</Text></Button>
         </View>
       </View>
     );
@@ -102,7 +102,7 @@ DrawerContent.contextTypes = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDF058',
+    backgroundColor: '#896968',
   },
   backgroundImage: {
     width: 300,
@@ -110,7 +110,11 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     flexDirection: 'row',
-    padding: 20,
+    padding: 10
+  },
+  glancerItem: {
+    flexDirection: 'row',
+    padding: 10
   },
   itemImage: {
     marginTop: 1,
@@ -121,7 +125,8 @@ const styles = StyleSheet.create({
     paddingLeft: 2
   },
   item: {
-    fontSize: 16
+    fontSize: 16,
+    color: "#FFFFFF"
   },
   loading: {
        flex: 1,
@@ -132,8 +137,12 @@ const styles = StyleSheet.create({
     flex: 1,
     width: window.width,
     height: window.height,
-    backgroundColor: '#FDF058',
-    padding: 20,
+    backgroundColor: '#896968',
+    paddingTop: 20,
+  },
+  text: {
+    fontSize: 16,
+    color: "#000000"
   }
 });
 

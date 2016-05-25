@@ -6,7 +6,7 @@ import loginInfo from './utils/loginInfo';
 import Drawer from './components/drawer/Drawer';
 import Splash from './components/Splash';
 import Login from './components/Login';
-import Browse from './components/app/Browse';
+import Glancer from './components/app/Glancer';
 
 import GlancerList from './components/app/GlancerList';
 import Api from './components/app/RssFeedApi';
@@ -44,7 +44,7 @@ class Root extends Component {
         <Scene key="login" component={Login} type="replace" title="Login" />
         <Scene key="app" component={Drawer} type="replace">
           <Scene key="main">
-            <Scene key="browse" component={Browse} initial={true} title='My Glances' type="replace" />
+            <Scene key="glancer" component={Glancer} initial={true} title='dailyglancer' type="replace" />
             <Scene key="glancerList" component={GlancerList} title='Glancer' />
             <Scene key="glancerContent" component={GlancerContent} title='Glancer Content' />
           </Scene>

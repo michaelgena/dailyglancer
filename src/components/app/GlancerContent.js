@@ -1,29 +1,35 @@
 'use strict';
-import React, { Component, View, Text, StyleSheet, WebView } from 'react-native';
+import React, { Component, View, Text, StyleSheet, ActivityIndicatorIOS, WebView } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 
 class GlancerContent extends Component {
 
   constructor(opts) {
     super(opts);
-    this._url = opts.url;
-  }
-
-  componentDidMount() {
-    this._loadGlancerContent().done();
-  }
-
-  async _loadGlancerContent() {
-
+    this.state = {
+       url: opts.url
+    };
   }
 
   render() {
-    return (
-      <WebView
-        url={this._url}
-      />
-    );
+      return (
+        <WebView
+          source={{uri: this.state.url}}
+          renderLoading={this.renderLoadingView}
+          startInLoadingState={true}
+        />
+      );
   }
+
+  renderLoadingView() {
+      return (
+          <View style={styles.loading}>
+             <ActivityIndicatorIOS
+                 size='large'/>
+          </View>
+      );
+  }
+
 }
 const styles = StyleSheet.create({
   container: {
