@@ -181,6 +181,7 @@ class Rebus extends Component {
        text: "",
        rebus:"",
        previousText:"",
+       rebusArray:[]
     };
   }
 
@@ -209,77 +210,90 @@ class Rebus extends Component {
   }
 
   generate(text) {
-    console.log("text length ["+text.length+"]");
-    if(text.length == 0)
-    this.state.rebus = "";
-    var textPart = text;
-
-    var i = 0;
-
-    //position of i should be just after the last space
-    if(text.lastIndexOf(" ")>-1){
-      i = text.lastIndexOf(" ");
-      if((text.match(/ /g) || []).length > (this.state.rebus.match(/ /g) || []).length){
-        this.state.rebus += " ";
-      }
-      textPart = text.substring(i+1,text.length);
-      i++;
+    if(text.length == 0){
+      this.state.rebus = "";
+      this.state.previousText = "";
+      this.state.text = "";
+      return "";
     }
+    this.state.rebus = "";
+    var rebusObj = {};
+    var textArray = text.split(" ");
+    //position of i should be just after the last space
+    var i = textArray.length - 1;
+    rebusObj.word = textArray[i];
+    rebusObj.nbSpace = textArray.length - 1;
 
     //unless we started removing some characters from the input
     //in this case we start from scratch
     if(text.length < this.state.previousText.length){
       i = 0;
       this.state.rebus = "";
+      this.state.rebusArray = [];
       //in case there are other spaces after
-      textPart = text;
-      textPart = textPart.split(" ")[0];
+      rebusObj.word = textArray[0];
     }
 
-    while (i < text.length && text.length>0) {
-        //if Char is not alphanumeric add it directly to the Rebus
-        var str = text.toLowerCase().charAt(i);
-        if(str.match(/[a-z]/i) === null){
-          this.state.rebus += text.charAt(i);
-          textPart = text.substring(i+1,text.length).split(" ")[0];
-          //in case there are other spaces after
-          textPart = textPart.split(" ")[0];
+    while (i < textArray.length) {
+        if(textArray[i] == ""){
           i++;
           continue;
         }
-        console.log("json length of ["+text.toLowerCase().charAt(i)+"] =>"+ json[text.toLowerCase().charAt(i)].length);
 
-        for(var j = 0; j < json[text.toLowerCase().charAt(i)].length; j++){
-          //simplest case => text is entirely contained in the emoji
+        rebusObj.word = textArray[i];
+        //if Char is not alphanumeric add it directly to the Rebus
+        var char = rebusObj.word.toLowerCase().charAt(0);
 
-          if(json[text.toLowerCase().charAt(i)][j].name.indexOf(textPart.toLowerCase()) > -1){
-
-            //last character of my rebus isn't a space then remove previous rebus resolution
-            //as we are building the rebus on the go
-            if(this.state.rebus.charAt(this.state.rebus.length-1).match(/[a-z]/i) !== null){
-                var idx = this.state.rebus.lastIndexOf(" ")>-1 ? this.state.rebus.lastIndexOf(" ")+1 : 0;
-                this.state.rebus = this.state.rebus.substring(0, idx);
-                this.state.rebus += json[text.toLowerCase().charAt(i)][j].value;
-            }else{
-                this.state.rebus += json[text.toLowerCase().charAt(i)][j].value;
-            }
-            var delta = json[text.toLowerCase().charAt(i)][j].name.replace(textPart.toLowerCase(), "");
-            if(delta.length>0){
-              this.state.rebus += "-"+delta;
-            }
-            i = i+textPart.length-1;
-            break;
-          }
-
-            /*if(text.length < i+1 && json[text.toLowerCase().charAt(i)][j].name.length>1 && text.charAt(i+1) == json[text.toLowerCase().charAt(i)][j].name.charAt(1)){
-               this.state.rebus = json[text.toLowerCase().charAt(i)][j]+"-"+json[text.toLowerCase().charAt(i)][j].name.substring(1, json[text.toLowerCase().charAt(i)][j].length);
-               i=i+2;
-               break;
-            }*/
+        //we are deleting values from the input
+        if(text.length < this.state.previousText.length){
+          //try to match the word by removing the last character each time
         }
 
-        i++;
+        //simplest case => text is entirely contained in the emoji
+        if(json[char][j].name.startsWith(rebusObj.word.toLowerCase()) == true){
+            //are we building the rebus on the go
+            if(this.state.rebusArray.length>0 && this.state.rebusArray[this.state.rebusArray.length-1].nbSpace == rebusObj.nbSpace ){
+                this.state.rebusArray.splice(-1,1);
+            }
+            rebusObj.rebus = json[char][j].value;
+
+            var delta = json[char][j].name.replace(rebusObj.word.toLowerCase(), "");
+            if(delta.length>0){
+              rebusObj.delta = delta;
+            }
+
+            this.state.rebusArray.push(rebusObj);
+            break;
+        }
+
+      }
+      //if there's additional part of the text that didn't much an emoji
+      //add it to the rebus
+
+      if(this.state.rebusArray.length>0 && this.state.rebusArray[this.state.rebusArray.length-1].nbSpace == rebusObj.nbSpace ){
+        var left = rebusObj.word.replace(this.state.rebusArray[this.state.rebusArray.length-1].word, "");
+        this.state.rebusArray[this.state.rebusArray.length-1].left = left;
+      }
+
+      i++;
     }
+
+    for(var r=0; r<this.state.rebusArray.length; r++){
+      if(this.state.rebus !== ""){
+          this.state.rebus += " ";
+      }
+      this.state.rebus += this.state.rebusArray[r].rebus;
+      if(this.state.rebusArray[r].left !== undefined && this.state.rebusArray[r].left.length>0){
+        if(this.state.rebusArray[r].delta !== undefined && this.state.rebusArray[r].delta.length>0){
+          this.state.rebus += this.state.rebusArray[r].delta+"="+this.state.rebusArray[r].left;
+        }else{
+          this.state.rebus += this.state.rebusArray[r].left;
+        }
+      }else if(this.state.rebusArray[r].delta !== undefined && this.state.rebusArray[r].delta.length>0){
+        this.state.rebus += "-"+this.state.rebusArray[r].delta;
+      }
+    }
+
     this.state.previousText = text;
     this.state.text = this.state.rebus;
     return this.state.rebus;
