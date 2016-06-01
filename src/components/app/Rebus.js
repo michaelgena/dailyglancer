@@ -239,33 +239,30 @@ class Rebus extends Component {
           i++;
           continue;
         }
-
         rebusObj.word = textArray[i];
-        //if Char is not alphanumeric add it directly to the Rebus
         var char = rebusObj.word.toLowerCase().charAt(0);
+        for(var j = 0; j < json[char].length; j++){
+          //we are deleting values from the input
+          if(text.length < this.state.previousText.length){
+            //try to match the word by removing the last character each time
+          }
 
-        //we are deleting values from the input
-        if(text.length < this.state.previousText.length){
-          //try to match the word by removing the last character each time
-        }
+          //simplest case => text is entirely contained in the emoji
+          if(json[char][j].name.startsWith(rebusObj.word.toLowerCase()) == true){
+              //are we building the rebus on the go
+              if(this.state.rebusArray.length>0 && this.state.rebusArray[this.state.rebusArray.length-1].nbSpace == rebusObj.nbSpace ){
+                  this.state.rebusArray.splice(-1,1);
+              }
+              rebusObj.rebus = json[char][j].value;
 
-        //simplest case => text is entirely contained in the emoji
-        if(json[char][j].name.startsWith(rebusObj.word.toLowerCase()) == true){
-            //are we building the rebus on the go
-            if(this.state.rebusArray.length>0 && this.state.rebusArray[this.state.rebusArray.length-1].nbSpace == rebusObj.nbSpace ){
-                this.state.rebusArray.splice(-1,1);
-            }
-            rebusObj.rebus = json[char][j].value;
+              var delta = json[char][j].name.replace(rebusObj.word.toLowerCase(), "");
+              if(delta.length>0){
+                rebusObj.delta = delta;
+              }
 
-            var delta = json[char][j].name.replace(rebusObj.word.toLowerCase(), "");
-            if(delta.length>0){
-              rebusObj.delta = delta;
-            }
-
-            this.state.rebusArray.push(rebusObj);
-            break;
-        }
-
+              this.state.rebusArray.push(rebusObj);
+              break;
+          }
       }
       //if there's additional part of the text that didn't much an emoji
       //add it to the rebus
