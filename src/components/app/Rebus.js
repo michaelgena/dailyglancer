@@ -181,6 +181,7 @@ class Rebus extends Component {
        text: "",
        rebus:"",
        previousText:"",
+       currentText:"",
        rebusArray:[]
     };
   }
@@ -197,6 +198,8 @@ class Rebus extends Component {
           style={styles.input}
           onChangeText={(text) => this.setState({text})}
           placeholder="Type your text here..."
+          autoCorrect={false}
+          multiline={true}
         />
         <TouchableHighlight
           style={styles.button}
@@ -213,9 +216,12 @@ class Rebus extends Component {
     if(text.length == 0){
       this.state.rebus = "";
       this.state.previousText = "";
+      this.state.currentText = "";
       this.state.text = "";
+      this.state.rebusArray = [];
       return "";
     }
+    this.state.currentText = text;
     this.state.rebus = "";
     var rebusObj = {};
     var textArray = text.split(" ");
@@ -241,29 +247,77 @@ class Rebus extends Component {
         }
         rebusObj.word = textArray[i];
         var char = rebusObj.word.toLowerCase().charAt(0);
-        for(var j = 0; j < json[char].length; j++){
-          //we are deleting values from the input
-          if(text.length < this.state.previousText.length){
+
+        //we are deleting values from the input
+        if(text.length < this.state.previousText.length){
+          this.matchEmoji(rebusObj);
+          if(rebusObj.rebus == undefined || rebusObj.rebus.length == 0){
             //try to match the word by removing the last character each time
+            rebusObj.left = "";
+            for(var n=rebusObj.word.length-1; n>0; n--){
+              rebusObj.left += rebusObj.word.charAt(n);
+              rebusObj.word = rebusObj.word.substring(0,n-1);
+              this.matchEmoji(rebusObj);
+              /*if(rebusObj.rebus !== undefined && rebusObj.rebus.length > 0){
+                var rebusObjJSON = JSON.parse(JSON.stringify(rebusObj));
+                this.state.rebusArray.push(rebusObjJSON);
+                rebusObj.word = "";
+                rebusObj.delta = "";
+                rebusObj.left = "";
+                rebusObj.prev = "";
+                rebusObj.rebus = "";
+                break;
+              }*/
+            }
           }
+        }else{
+            this.matchEmoji(rebusObj);
+            /*var delta = (rebusObj.delta !== undefined) ? rebusObj.delta.length : 0;
+            if(delta > 1 && rebusObj.word.length > 3){
+              var rebusObjTemp1,rebusObjTemp2 = {};
 
-          //simplest case => text is entirely contained in the emoji
-          if(json[char][j].name.startsWith(rebusObj.word.toLowerCase()) == true){
-              //are we building the rebus on the go
-              if(this.state.rebusArray.length>0 && this.state.rebusArray[this.state.rebusArray.length-1].nbSpace == rebusObj.nbSpace ){
-                  this.state.rebusArray.splice(-1,1);
+              rebusObjTemp1.nbSpace = rebusObj.nbSpace;
+              rebusObjTemp1.word = rebusObj.word;
+              rebusObjTemp2.nbSpace = rebusObj.nbSpace;
+              rebusObjTemp2.word = rebusObj.word;
+
+              rebusObjTemp1.prev = rebusObjTemp1.word.charAt(0);
+              rebusObjTemp1.word = rebusObjTemp1.word.substring(1,rebusObjTemp1.word.length);
+              this.matchEmoji(rebusObjTemp1);
+
+              rebusObjTemp2.prev = rebusObjTemp2.word.substring(0,1);
+              rebusObjTemp2.word = rebusObjTemp2.word.substring(2,rebusObjTemp2.word.length);
+              this.matchEmoji(rebusObjTemp2);
+
+              if(rebusObjTemp1.rebus !== undefined && rebusObjTemp1.rebus.length > 0 && rebusObjTemp2.rebus !== undefined && rebusObjTemp2.rebus.length > 0){
+                var delta1 = (rebusObjTemp1.delta !== undefined) ? rebusObjTemp1.delta.length+1 : 1;
+                var delta2 = (rebusObjTemp2.delta !== undefined) ? rebusObjTemp2.delta.length+2 : 2;
+                if (delta1 < delta2 && delta1 < delta){
+                  rebusObj.word = rebusObjTemp1.word;
+                  rebusObj.delta = rebusObjTemp1.delta;
+                  rebusObj.rebus = rebusObjTemp1.rebus;
+                  rebusObj.prev = rebusObjTemp1.prev;
+                  rebusObj.left = rebusObjTemp1.left;
+                }
+                if (delta2 < delta1 && delta2 < delta){
+                  rebusObj.word = rebusObjTemp2.word;
+                  rebusObj.delta = rebusObjTemp2.delta;
+                  rebusObj.rebus = rebusObjTemp2.rebus;
+                  rebusObj.prev = rebusObjTemp2.prev;
+                  rebusObj.left = rebusObjTemp2.left;
+                }
               }
-              rebusObj.rebus = json[char][j].value;
+            }
+            var rebusObjJSON = JSON.parse(JSON.stringify(rebusObj));
+            this.state.rebusArray.push(rebusObjJSON);
+            rebusObj.word = "";
+            rebusObj.delta = "";
+            rebusObj.left = "";
+            rebusObj.prev = "";
+            rebusObj.rebus = "";
+            */
+        }
 
-              var delta = json[char][j].name.replace(rebusObj.word.toLowerCase(), "");
-              if(delta.length>0){
-                rebusObj.delta = delta;
-              }
-
-              this.state.rebusArray.push(rebusObj);
-              break;
-          }
-      }
       //if there's additional part of the text that didn't much an emoji
       //add it to the rebus
 
@@ -278,6 +332,9 @@ class Rebus extends Component {
     for(var r=0; r<this.state.rebusArray.length; r++){
       if(this.state.rebus !== ""){
           this.state.rebus += " ";
+      }
+      if(this.state.rebusArray[r].prev !== undefined && this.state.rebusArray[r].prev.length>0){
+        this.state.rebus += this.state.rebusArray[r].prev;
       }
       this.state.rebus += this.state.rebusArray[r].rebus;
       if(this.state.rebusArray[r].left !== undefined && this.state.rebusArray[r].left.length>0){
@@ -294,6 +351,35 @@ class Rebus extends Component {
     this.state.previousText = text;
     this.state.text = this.state.rebus;
     return this.state.rebus;
+  }
+
+  matchEmoji(rebusObj) {
+    if(rebusObj.word.length == 0 || rebusObj.word.toLowerCase().charAt(0) == ""){
+      return rebusObj;
+    }
+    var char = rebusObj.word.toLowerCase().charAt(0);
+    for(var j = 0; j < json[char].length; j++){
+      if(json[char][j].name.startsWith(rebusObj.word.toLowerCase()) == true){
+          //are we building the rebus on the go
+          if(this.state.rebusArray.length>0 && this.state.rebusArray[this.state.rebusArray.length-1].nbSpace == rebusObj.nbSpace && this.state.currentText.length >= this.state.previousText.length){
+              this.state.rebusArray.splice(-1,1);
+          }
+          rebusObj.rebus = json[char][j].value;
+
+          var delta = json[char][j].name.replace(rebusObj.word.toLowerCase(), "");
+          if(delta.length>0){
+            rebusObj.delta = delta;
+          }
+          var rebusObjJSON = JSON.parse(JSON.stringify(rebusObj));
+          this.state.rebusArray.push(rebusObjJSON);
+          rebusObj.word = "";
+          rebusObj.delta = "";
+          rebusObj.left = "";
+          rebusObj.rebus = "";
+          break;
+      }
+    }
+    return rebusObj;
   }
 }
 
